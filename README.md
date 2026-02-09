@@ -18,6 +18,7 @@ This project demonstrates advanced skills in Mechatronics Engineering, System In
 For Technical Demos: Please contact via https://www.linkedin.com/in/g%C3%B6ktu%C4%9F-nuho%C4%9Flu-769678192/
 
 📈 ManufacturingOS Development Log
+
 Phase 1: Connectivity (Foundation)
 * Unity & ROS2 bi-directional bridge setup.
 * Latency testing and "Ping-Pong" verification between Windows/WSL2.
