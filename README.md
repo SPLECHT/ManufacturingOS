@@ -22,6 +22,8 @@ For Technical Demos: Please contact via https://www.linkedin.com/in/g%C3%B6ktu%C
 Phase 1: Connectivity (Foundation)
 * Unity & ROS2 bi-directional bridge setup.
 * Latency testing and "Ping-Pong" verification between Windows/WSL2.
+ <img width="1919" height="1079" alt="ManufactoringOS Phase1" src="https://github.com/user-attachments/assets/c3530caa-1e69-4175-8659-cf6adebaf7cb" />
+
 
 Phase 2: Visual Twin (Telemetry)
 * Subscribing to /joint_states from ROS2's robot_state_publisher.
