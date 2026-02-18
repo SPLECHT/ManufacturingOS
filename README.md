@@ -19,7 +19,7 @@ For Technical Demos: Please contact via https://www.linkedin.com/in/g%C3%B6ktu%C
 
 📈 ManufacturingOS Development Log
 
-Phase 1: Connectivity (Foundation)
+Phase 1: Connectivity (Foundation) ---- DONE ----
 * Unity & ROS2 bi-directional bridge setup.
 * Latency testing and "Ping-Pong" verification between Windows/WSL2.
  <img width="1919" height="1079" alt="ManufactoringOS Phase1" src="https://github.com/user-attachments/assets/c3530caa-1e69-4175-8659-cf6adebaf7cb" />
