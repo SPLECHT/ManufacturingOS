@@ -25,9 +25,14 @@ Phase 1: Connectivity (Foundation) ---- DONE ----
  <img width="1919" height="1079" alt="ManufactoringOS Phase1" src="https://github.com/user-attachments/assets/c3530caa-1e69-4175-8659-cf6adebaf7cb" />
 
 
-Phase 2: Visual Twin (Telemetry)
+Phase 2: Visual Twin (Telemetry) ---- DONE ----
 * Subscribing to /joint_states from ROS2's robot_state_publisher.
 * Real-time synchronization of the 3D robot model in Unity with the ROS2 core.
+* 
+
+https://github.com/user-attachments/assets/039defde-11b0-4b1e-b118-b7c2709918b9
+
+
 
 Phase 3: Manual Manipulation (Teleoperation)
 * Building a simple UI/UX in Unity (Sliders or Draggable Handles).
