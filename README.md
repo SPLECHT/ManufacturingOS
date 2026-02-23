@@ -28,7 +28,6 @@ Phase 1: Connectivity (Foundation) ---- DONE ----
 Phase 2: Visual Twin (Telemetry) ---- DONE ----
 * Subscribing to /joint_states from ROS2's robot_state_publisher.
 * Real-time synchronization of the 3D robot model in Unity with the ROS2 core.
-* 
 
 https://github.com/user-attachments/assets/039defde-11b0-4b1e-b118-b7c2709918b9
 
@@ -38,18 +37,18 @@ Phase 3: Manual Manipulation (Teleoperation)
 * Building a simple UI/UX in Unity (Sliders or Draggable Handles).
 * Sending joint commands back to ROS2 to move the virtual/physical robot manually.
 
-Phase 4: Sensor Fusion & Environment (Perception)
-* Visualizing LaserScan (Lidar) or PointCloud data within the Unity scene.
-* Integrating collision detection using Unity's physics engine.
+Phase 4: AGV Integration & Fleet Visualization
+* Integrating an Autonomous Guided Vehicle (AGV) into the existing multi-robot Gazebo simulation.
+* Bridging ROS2 Nav2 odometry/cmd_vel topics with Unity to visualize real-time AGV movement and navigation.
 
-Phase 5: High-Level Path Planning (Intelligence)
-* Sending "Target Pose" commands from Unity to ROS2 MoveIt2.
-* Visualizing the planned trajectory before execution (Safety Check).
+Phase 5: Sensor Fusion & Environment (Perception)
+* Visualizing ROS2 LaserScan (LiDAR) and PointCloud data directly within the Unity scene.
+* Integrating real-time collision detection and spatial awareness using Unity's physics engine.
 
-Phase 6: The Recipe Engine (Automation)
-* Developing the JSON-based "Production Sequence" logic.
-* Executing multi-step tasks (e.g., Pick-and-Place loops).
+Phase 6: Full Factory Simulation (The Dark Factory Implementation)
+* Designing and synchronizing a complete, 1:1 scale industrial environment (world) in both Gazebo and Unity.
+* Orchestrating a comprehensive production line simulation combining multi-axis robotic arms and an AGV fleet working in harmony.
 
 Phase 7: Cognitive Interface (NLP & AI)
-* Integrating LLM/NLP for voice/text command interpretation.
-* Global monitoring and "Dark Factory" remote management dashboard.
+* Integrating LLM/NLP models for natural language voice and text command interpretation.
+* Establishing a global monitoring and comprehensive "Dark Factory" remote management dashboard.
