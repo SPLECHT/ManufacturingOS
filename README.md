@@ -33,9 +33,14 @@ https://github.com/user-attachments/assets/039defde-11b0-4b1e-b118-b7c2709918b9
 
 
 
-Phase 3: Manual Manipulation (Teleoperation)
+Phase 3: Manual Manipulation (Teleoperation) ---- DONE ----
 * Building a simple UI/UX in Unity (Sliders or Draggable Handles).
 * Sending joint commands back to ROS2 to move the virtual/physical robot manually.
+
+
+https://github.com/user-attachments/assets/0e6245b9-6fcd-4487-a529-2770e9b61b73
+
+ 
 
 Phase 4: AGV Integration & Fleet Visualization
 * Integrating an Autonomous Guided Vehicle (AGV) into the existing multi-robot Gazebo simulation.
