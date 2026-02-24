@@ -1,3 +1,4 @@
+![logo](https://github.com/user-attachments/assets/b5119506-0d8a-48d8-a028-8f20b3f48ea2)
 # ManufacturingOS
 Proprietary Industrial Operating System for Autonomous Production
 
