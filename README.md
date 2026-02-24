@@ -1,6 +1,4 @@
-
-#![aagIuGysQ6uERMdIBGQEkw@2k](https://github.com/user-attachments/assets/650b4f37-ba22-4bf1-96d8-5eba2523ebde)
- ManufacturingOS
+# ManufacturingOS
 Proprietary Industrial Operating System for Autonomous Production
 
 ManufacturingOS is a high-level, hardware-agnostic "Manufacturing Kernel" designed to manage the entire lifecycle of a production line. By bridging Unity's real-time 3D engine with the ROS2 robotics framework, MOS creates a seamless interface between the digital and physical worlds.
