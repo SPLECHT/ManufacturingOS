@@ -33,7 +33,6 @@ Phase 2: Visual Twin (Telemetry) ---- DONE ----
 https://github.com/user-attachments/assets/039defde-11b0-4b1e-b118-b7c2709918b9
 
 
-
 Phase 3: Manual Manipulation (Teleoperation) ---- DONE ----
 * Building a simple UI/UX in Unity (Sliders or Draggable Handles).
 * Sending joint commands back to ROS2 to move the virtual/physical robot manually.
@@ -42,19 +41,13 @@ Phase 3: Manual Manipulation (Teleoperation) ---- DONE ----
 https://github.com/user-attachments/assets/0e6245b9-6fcd-4487-a529-2770e9b61b73
 
  
-
-Phase 4: AGV Integration & Fleet Visualization
+Phase 4: AGV Integration & Fleet Visualization & LiDAR Integration ---- DONE ----
 * Integrating an Autonomous Guided Vehicle (AGV) into the existing multi-robot Gazebo simulation.
-* Bridging ROS2 Nav2 odometry/cmd_vel topics with Unity to visualize real-time AGV movement and navigation.
+* Visualizing ROS2 LaserScan (LiDAR)
 
-Phase 5: Sensor Fusion & Environment (Perception)
-* Visualizing ROS2 LaserScan (LiDAR) and PointCloud data directly within the Unity scene.
-* Integrating real-time collision detection and spatial awareness using Unity's physics engine.
 
-Phase 6: Full Factory Simulation (The Dark Factory Implementation)
-* Designing and synchronizing a complete, 1:1 scale industrial environment (world) in both Gazebo and Unity.
-* Orchestrating a comprehensive production line simulation combining multi-axis robotic arms and an AGV fleet working in harmony.
+https://github.com/user-attachments/assets/b0f19dbc-61ab-47c1-bc02-454502077d5d
 
-Phase 7: Cognitive Interface (NLP & AI)
-* Integrating LLM/NLP models for natural language voice and text command interpretation.
-* Establishing a global monitoring and comprehensive "Dark Factory" remote management dashboard.
+
+Phase 5: Integration of High-Fidelity Digital Twin Interface & Real-Time Monitoring GUI
+* In this phase, the project transitions from a backend-heavy simulation to a comprehensive Digital Twin Platform. I am developing a custom-built GUI in Unity to bridge the gap between ROS 2-based autonomous logic and human-centric industrial operations. This interface goes beyond traditional SCADA systems by providing spatial awareness through a 3D environment, real-time telemetry visualization, and a seamless command-and-control bridge via ROS-TCP-Connector.
