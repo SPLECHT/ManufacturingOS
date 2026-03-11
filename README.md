@@ -13,10 +13,12 @@ This project demonstrates advanced skills in Mechatronics Engineering, System In
 If you have any questions please contact via goktugnuhoglu41@gmail.com
 
 📈 ManufacturingOS Development Log
+🛠️ VERSION 1.0 : The TCP Bridge Era (Legacy Architecture)
+The initial foundation of the project relied on a TCP endpoint to communicate between Windows and Ubuntu environments.
 
-Phase 1: Connectivity (Foundation) ---- DONE ----
-* Unity & ROS2 bi-directional bridge setup.
-* Latency testing and "Ping-Pong" verification between Unity Engine on Windows and ROS2 on Ubuntu running in VirtualBox.
+* Phase 1: Connectivity (Foundation) ---- DONE ----
+ * Unity & ROS 2 bi-directional bridge setup via ROS-TCP-Endpoint.
+ * Latency testing and "Ping-Pong" verification between Unity Engine on Windows and ROS 2 on Ubuntu running in VirtualBox.
  <img width="1919" height="1079" alt="ManufactoringOS Phase1" src="https://github.com/user-attachments/assets/c3530caa-1e69-4175-8659-cf6adebaf7cb" />
 
 
