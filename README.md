@@ -7,16 +7,10 @@ ManufacturingOS is a high-level, hardware-agnostic "Manufacturing Kernel" design
 🛡️ Project Status: Proprietary
 The source code of ManufacturingOS is private and intellectual property. This repository serves as a Roadmap, Technical Documentation, and Portfolio for recruitment and collaboration purposes.
 
-🚀 Key Features (Capabilities)
-* Unified Hardware Interface: Capable of controlling multi-axis robotic arms and AGVs regardless of the manufacturer (Universal abstraction layer).
-* High-Fidelity Digital Twin: Real-time synchronization with 10-20ms latency optimized for industrial environments.
-* Production Recipe Engine: Advanced JSON-based logic to handle complex manufacturing sequences (e.g., modular ammunition production, assembly lines).
-* Embedded NLP Integration: Voice and text-based command interpretation for high-level factory orchestration.
-
 💼 Recruitment & Business Inquiries
 This project demonstrates advanced skills in Mechatronics Engineering, System Integration, and Robotics Software Development.
 
-For Technical Demos: Please contact via goktugnuhoglu41@gmail.com
+If you have any questions please contact via goktugnuhoglu41@gmail.com
 
 📈 ManufacturingOS Development Log
 
