@@ -13,14 +13,14 @@ This project demonstrates advanced skills in Mechatronics Engineering, System In
 If you have any questions please contact via goktugnuhoglu41@gmail.com
 
 📈 ManufacturingOS Development Log
+
 🛠️ VERSION 1.0 : The TCP Bridge Era (Legacy Architecture)
 The initial foundation of the project relied on a TCP endpoint to communicate between Windows and Ubuntu environments.
 
-* Phase 1: Connectivity (Foundation) ---- DONE ----
- * Unity & ROS 2 bi-directional bridge setup via ROS-TCP-Endpoint.
- * Latency testing and "Ping-Pong" verification between Unity Engine on Windows and ROS 2 on Ubuntu running in VirtualBox.
+Phase 1: Connectivity (Foundation) ---- DONE ----
+* Unity & ROS 2 bi-directional bridge setup via ROS-TCP-Endpoint.
+* Latency testing and "Ping-Pong" verification between Unity Engine on Windows and ROS 2 on Ubuntu running in VirtualBox.
  <img width="1919" height="1079" alt="ManufactoringOS Phase1" src="https://github.com/user-attachments/assets/c3530caa-1e69-4175-8659-cf6adebaf7cb" />
-
 
 Phase 2: Visual Twin (Telemetry) ---- DONE ----
 * Subscribing to /joint_states from ROS2's robot_state_publisher.
@@ -44,8 +44,9 @@ Phase 4: AGV Integration & Fleet Visualization & LiDAR Integration ---- DONE ---
 
 https://github.com/user-attachments/assets/b0f19dbc-61ab-47c1-bc02-454502077d5d
 
-Revision Overview:
-In order to achieve true industrial-grade real-time performance and eliminate the inherent latency of network middleware, the core communication architecture of ManufacturingOS has been completely overhauled. The project has transitioned from using the traditional ROS-TCP-Endpoint bridge to a Native FastDDS integration via Ros2ForUnity.
+
+🚀 MAJOR ARCHITECTURE REVISION: Migration to Native FastDDS
+Overview: In order to achieve true industrial-grade real-time performance and eliminate the inherent latency of network middleware, the core communication architecture of ManufacturingOS was completely overhauled. The project transitioned from using the traditional ROS-TCP-Endpoint bridge to a Native FastDDS integration via Ros2ForUnity.
 
 Key Technical Improvements:
 
@@ -54,4 +55,9 @@ Key Technical Improvements:
 * Thread-Safe Data Synchronization: Completely rewrote the subscriber and publisher architectures in C#. Implemented robust lock mechanisms to safely pass high-frequency background DDS thread data into Unity's main rendering and physics thread without race conditions.
 * True "Plug-and-Play" Digital Twin: The platform no longer requires hardcoded IP addresses or separate bridge instances. Utilizing DDS Network Discovery, the Unity HMI dashboard automatically detects and connects to robotic fleets within the same ROS_DOMAIN_ID.
 
-This architectural shift transforms ManufacturingOS from a conceptual simulation bridge into a robust, deployment-ready Industrial IoT and Teleoperation platform.
+This architectural shift transformed ManufacturingOS from a conceptual simulation bridge into a robust, deployment-ready Industrial IoT and Teleoperation platform.
+
+⚡ VERSION 2.0 : The Native DDS Era (Current Architecture)
+With the FastDDS backbone established, the platform now supports advanced, zero-latency industrial features.
+
+Phase 5: Interactive Off-line Programming (OLP) & GUI ---- IN PROGRESS ----
