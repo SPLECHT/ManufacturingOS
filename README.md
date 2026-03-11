@@ -16,7 +16,7 @@ The source code of ManufacturingOS is private and intellectual property. This re
 💼 Recruitment & Business Inquiries
 This project demonstrates advanced skills in Mechatronics Engineering, System Integration, and Robotics Software Development.
 
-For Technical Demos: Please contact via https://www.linkedin.com/in/g%C3%B6ktu%C4%9F-nuho%C4%9Flu-769678192/
+For Technical Demos: Please contact via goktugnuhoglu41@gmail.com
 
 📈 ManufacturingOS Development Log
 
@@ -48,6 +48,14 @@ Phase 4: AGV Integration & Fleet Visualization & LiDAR Integration ---- DONE ---
 
 https://github.com/user-attachments/assets/b0f19dbc-61ab-47c1-bc02-454502077d5d
 
+Revision Overview:
+In order to achieve true industrial-grade real-time performance and eliminate the inherent latency of network middleware, the core communication architecture of ManufacturingOS has been completely overhauled. The project has transitioned from using the traditional ROS-TCP-Endpoint bridge to a Native FastDDS integration via Ros2ForUnity.
 
-Phase 5: Integration of High-Fidelity Digital Twin Interface & Real-Time Monitoring GUI
-* In this phase, the project transitions from a backend-heavy simulation to a comprehensive Digital Twin Platform. I am developing a custom-built GUI in Unity to bridge the gap between ROS 2-based autonomous logic and human-centric industrial operations. This interface goes beyond traditional SCADA systems by providing spatial awareness through a 3D environment, real-time telemetry visualization, and a seamless command-and-control bridge via ROS-TCP-Connector.
+Key Technical Improvements:
+
+* Middleware Elimination: By removing the TCP bridge bottleneck, Unity now operates as a first-class, native ROS 2 node on the distributed network. This allows for direct peer-to-peer communication with hardware controllers and Gazebo simulations.
+* Ultra-Low Latency: Data transmission for high-frequency topics (such as /joint_states, /odom, and /scan) is now handled directly by the DDS (Data Distribution Service) layer, achieving near-zero latency telemetry streaming.
+* Thread-Safe Data Synchronization: Completely rewrote the subscriber and publisher architectures in C#. Implemented robust lock mechanisms to safely pass high-frequency background DDS thread data into Unity's main rendering and physics thread without race conditions.
+* True "Plug-and-Play" Digital Twin: The platform no longer requires hardcoded IP addresses or separate bridge instances. Utilizing DDS Network Discovery, the Unity HMI dashboard automatically detects and connects to robotic fleets within the same ROS_DOMAIN_ID.
+
+This architectural shift transforms ManufacturingOS from a conceptual simulation bridge into a robust, deployment-ready Industrial IoT and Teleoperation platform.
