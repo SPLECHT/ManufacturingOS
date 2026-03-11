@@ -16,7 +16,7 @@ If you have any questions please contact via goktugnuhoglu41@gmail.com
 
 Phase 1: Connectivity (Foundation) ---- DONE ----
 * Unity & ROS2 bi-directional bridge setup.
-* Latency testing and "Ping-Pong" verification between Windows/WSL2.
+* Latency testing and "Ping-Pong" verification between Unity Engine on Windows and ROS2 on Ubuntu who runs in VirtualBox.
  <img width="1919" height="1079" alt="ManufactoringOS Phase1" src="https://github.com/user-attachments/assets/c3530caa-1e69-4175-8659-cf6adebaf7cb" />
 
 
