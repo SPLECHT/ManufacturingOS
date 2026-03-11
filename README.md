@@ -46,6 +46,7 @@ https://github.com/user-attachments/assets/b0f19dbc-61ab-47c1-bc02-454502077d5d
 
 
 🚀 MAJOR ARCHITECTURE REVISION: Migration to Native FastDDS
+
 Overview: In order to achieve true industrial-grade real-time performance and eliminate the inherent latency of network middleware, the core communication architecture of ManufacturingOS was completely overhauled. The project transitioned from using the traditional ROS-TCP-Endpoint bridge to a Native FastDDS integration via Ros2ForUnity.
 
 Key Technical Improvements:
