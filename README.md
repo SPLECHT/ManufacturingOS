@@ -61,4 +61,11 @@ This architectural shift transformed ManufacturingOS from a conceptual simulatio
 ⚡ VERSION 2.0 : The Native DDS Era (Current Architecture)
 With the FastDDS backbone established, the platform now supports advanced, zero-latency industrial features.
 
-Phase 5: Interactive Off-line Programming (OLP) & GUI ---- IN PROGRESS ----
+Phase 5: Industrial PLC Integration & Event-Driven Autonomy ---- DONE ----
+* Established a robust bi-directional communication bridge between a virtual factory floor (Factory I/O) and the ROS 2 network using Modbus TCP.
+* Engineered a fully autonomous, closed-loop industrial cycle: A virtual PLC sensor detects an incoming payload -> halts the conveyor -> triggers a ROS 2 Action Client -> executes a complex robotic manipulation task -> resumes the conveyor upon task completion feedback.
+* Upgraded the robot control architecture from standard fire-and-forget publishers to ROS 2 Action Servers/Clients (FollowJointTrajectory), ensuring precise state management, goal tracking, and reliable feedback loops.
+
+
+https://github.com/user-attachments/assets/c0790b28-72e2-406d-a1df-ed05aed92f1b
+
