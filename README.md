@@ -69,3 +69,15 @@ Phase 5: Industrial PLC Integration & Event-Driven Autonomy ---- DONE ----
 
 https://github.com/user-attachments/assets/c0790b28-72e2-406d-a1df-ed05aed92f1b
 
+
+VERSION 3.0 : The Architect Update
+
+* Runtime Factory World Builder: The ability to construct autonomous factory layouts at runtime via the UI, featuring Factorio/Satisfactory-style 3D grid-snapping and 3-axis (WASD) rotation mechanics.
+* Dynamic ROS2 Namespace Injection: An autonomous UI system that assigns custom, unique ROS2 node names and topic addresses (/namespace/joint_states) to every industrial machine added to the scene. 
+* Native DDS Scene Exporter: Broadcasting the simulation world coordinates (X, Y, Z, and Quaternion) to the ROS2 DDS Network
+
+
+
+https://github.com/user-attachments/assets/68568049-fd2d-4a3d-be35-f9575304b2a4
+
+UI/UX development is actively ongoing. Expect continuous visual refinements and ergonomic improvements to the interface in the upcoming phases
