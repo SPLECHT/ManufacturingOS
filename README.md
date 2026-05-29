@@ -1,83 +1,61 @@
-![logo](https://github.com/user-attachments/assets/b5119506-0d8a-48d8-a028-8f20b3f48ea2)
-# ManufacturingOS
-Proprietary Industrial Operating System for Autonomous Production
+# 🏭 ManufacturingOS: Industrial Digital Twin & Fleet Management System
 
-ManufacturingOS is a high-level, hardware-agnostic "Manufacturing Kernel" designed to manage the entire lifecycle of a production line. By bridging Unity's real-time 3D engine with the ROS2 robotics framework, MOS creates a seamless interface between the digital and physical worlds.
+ManufacturingOS is a highly advanced, bidirectional **Digital Twin and Fleet Management platform** bridging **Unity 3D** and **ROS2 (MoveIt2)**. 
 
-🛡️ Project Status: Proprietary
-The source code of ManufacturingOS is private and intellectual property. This repository serves as a Roadmap, Technical Documentation, and Portfolio for recruitment and collaboration purposes.
+Moving beyond standard simulation, ManufacturingOS acts as a central **"Master Brain"** for industrial environments. It provides zero-latency communication via a Native DDS network, dynamic real-time collision generation, and multi-robot fleet orchestration natively controlled through a custom-built Unity Teach Pendant UI.
 
-💼 Recruitment & Business Inquiries
-This project demonstrates advanced skills in Mechatronics Engineering, System Integration, and Robotics Software Development.
+![ManufacturingOS Banner](![logo](https://github.com/user-attachments/assets/b5119506-0d8a-48d8-a028-8f20b3f48ea2))
 
-If you have any questions please contact via goktugnuhoglu41@gmail.com
+[![Watch the Demo Video](https://img.shields.io/badge/YouTube-Watch_Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](#) *((https://youtu.be/y4o7uS0ALpM))*
 
-📈 ManufacturingOS Development Log
+---
 
-🛠️ VERSION 1.0 : The TCP Bridge Era (Legacy Architecture)
-The initial foundation of the project relied on a TCP endpoint to communicate between Windows and Ubuntu environments.
+## 🚀 Key Features & Architectural Breakthroughs
 
-Phase 1: Connectivity (Foundation) ---- DONE ----
-* Unity & ROS 2 bi-directional bridge setup via ROS-TCP-Endpoint.
-* Latency testing and "Ping-Pong" verification between Unity Engine on Windows and ROS 2 on Ubuntu running in VirtualBox.
- <img width="1919" height="1079" alt="ManufactoringOS Phase1" src="https://github.com/user-attachments/assets/c3530caa-1e69-4175-8659-cf6adebaf7cb" />
+### 1. Native ROS2 DDS Integration (Zero-Latency)
+Say goodbye to intermediate TCP/Rosbridge bottlenecks. ManufacturingOS utilizes a **Native DDS Bridge**, allowing Unity to publish and subscribe directly to ROS2 topics (`std_msgs`, `geometry_msgs`). Unity acts as a first-class citizen node in the ROS2 ecosystem.
 
-Phase 2: Visual Twin (Telemetry) ---- DONE ----
-* Subscribing to /joint_states from ROS2's robot_state_publisher.
-* Real-time synchronization of the 3D robot model in Unity with the ROS2 core.
+### 2. MOS Kernel Daemon & Multi-Robot Fleet Orchestration
+The system features a custom Python daemon (`mos_kernel_daemon.py`) running in the background (WSL2/Ubuntu). 
+* **Dynamic Booting:** Unity sends a unified JSON payload (`START_FLEET`) containing the namespaces of the active robots in the scene.
+* **Parallel Universes:** The Daemon dynamically spawns isolated MoveIt2 instances, TF trees, and Action Servers for each robot (e.g., `/robot_a`, `/ses`) simultaneously.
 
-https://github.com/user-attachments/assets/039defde-11b0-4b1e-b118-b7c2709918b9
+### 3. Smart Scene Manager (Real-Time Collision Avoidance)
+A dynamic radar system (`SmartSceneManager.cs`) inside Unity scans the environment at 10Hz. 
+* Converts Unity `BoxColliders` and Transforms into ROS2 `CollisionObjects`.
+* Automatically maps Unity's Left-Handed coordinate system to ROS2's Right-Handed system.
+* Publishes dynamic obstacles directly to the MoveIt2 `/planning_scene`, ensuring robots never collide with newly introduced objects.
 
+### 4. Advanced Teach Pendant UI & Waypoint Manager
+A fully custom, layout-driven UI built from scratch in Unity for industrial programming.
+* **Dictionary-Based Memory:** Manage independent trajectories for multiple robots without data overlapping.
+* **TCP Anchor Alignment:** Waypoints calculate trajectories based on the Tool Center Point (TCP) rather than the robot base, essential for high-precision tasks like welding.
+* **Local Space Mathematics:** Utilizes `InverseTransformPoint` to calculate relative distances via a specific `URDF_Anchor`, eliminating world-space offset bugs.
 
-Phase 3: Manual Manipulation (Teleoperation) ---- DONE ----
-* Building a simple UI/UX in Unity (Sliders or Draggable Handles).
-* Sending joint commands back to ROS2 to move the virtual/physical robot manually.
+### 5. Cartesian Path Planning (Smooth Execution)
+Transitioned from standard Point-to-Point (PTP) navigation to **Linear Interpolation (Cartesian Paths)**.
+* The ROS2 `MotionAgent` parses JSON trajectories from Unity and utilizes MoveIt's `compute_cartesian_path` service.
+* Executes smooth, uninterrupted welding-style paths with tight tolerances (1cm position, 0.2 rad orientation) across multiple waypoints.
 
+---
 
-https://github.com/user-attachments/assets/0e6245b9-6fcd-4487-a529-2770e9b61b73
+## ⚙️ How It Works (The Execution Flow)
 
- 
-Phase 4: AGV Integration & Fleet Visualization & LiDAR Integration ---- DONE ----
-* Integrating an Autonomous Guided Vehicle (AGV) into the existing multi-robot Gazebo simulation.
-* Visualizing ROS2 LaserScan (LiDAR)
+1. **Wake the Daemon:** Run `mos_daemon.py` in the ROS2 environment. It idles in the background, listening to the `/mos/system_boot` topic.
+2. **Design the Factory:** Open Unity, place industrial robots (e.g., Fanuc M-10iA), and assign them unique namespaces via the `RobotReplika` script.
+3. **Boot the Fleet:** Hit the **"BOOT"** button in Unity. Unity commands the Daemon to spin up all required MoveIt2 nodes, Controllers, and Motion Agents for the detected namespaces.
+4. **Program Trajectories:** Use the Teach Pendant UI to create precise waypoints relative to the robot's TCP.
+5. **Execute Simulation:** Press **"Play"**. Unity serializes the trajectory into a JSON payload and publishes it directly to the robot's specific command topic. The Python `MotionAgent` executes the Cartesian path flawlessly.
 
+---
 
-https://github.com/user-attachments/assets/b0f19dbc-61ab-47c1-bc02-454502077d5d
+## 🛠️ Tech Stack
+* **Game Engine / UI:** Unity 3D (C#)
+* **Robotics Framework:** ROS2 (Humble/Foxy)
+* **Motion Planning:** MoveIt2 (OMPL, KDL)
+* **Communication:** Native DDS Bridge
+* **Languages:** C#, Python 3
 
+---
 
-🚀 MAJOR ARCHITECTURE REVISION: Migration to Native FastDDS
-
-Overview: In order to achieve true industrial-grade real-time performance and eliminate the inherent latency of network middleware, the core communication architecture of ManufacturingOS was completely overhauled. The project transitioned from using the traditional ROS-TCP-Endpoint bridge to a Native FastDDS integration via Ros2ForUnity.
-
-Key Technical Improvements:
-
-* Middleware Elimination: By removing the TCP bridge bottleneck, Unity now operates as a first-class, native ROS 2 node on the distributed network. This allows for direct peer-to-peer communication with hardware controllers and Gazebo simulations.
-* Ultra-Low Latency: Data transmission for high-frequency topics (such as /joint_states, /odom, and /scan) is now handled directly by the DDS (Data Distribution Service) layer, achieving near-zero latency telemetry streaming.
-* Thread-Safe Data Synchronization: Completely rewrote the subscriber and publisher architectures in C#. Implemented robust lock mechanisms to safely pass high-frequency background DDS thread data into Unity's main rendering and physics thread without race conditions.
-* True "Plug-and-Play" Digital Twin: The platform no longer requires hardcoded IP addresses or separate bridge instances. Utilizing DDS Network Discovery, the Unity HMI dashboard automatically detects and connects to robotic fleets within the same ROS_DOMAIN_ID.
-
-This architectural shift transformed ManufacturingOS from a conceptual simulation bridge into a robust, deployment-ready Industrial IoT and Teleoperation platform.
-
-⚡ VERSION 2.0 : The Native DDS Era (Current Architecture)
-With the FastDDS backbone established, the platform now supports advanced, zero-latency industrial features.
-
-Phase 5: Industrial PLC Integration & Event-Driven Autonomy ---- DONE ----
-* Established a robust bi-directional communication bridge between a virtual factory floor (Factory I/O) and the ROS 2 network using Modbus TCP.
-* Engineered a fully autonomous, closed-loop industrial cycle: A virtual PLC sensor detects an incoming payload -> halts the conveyor -> triggers a ROS 2 Action Client -> executes a complex robotic manipulation task -> resumes the conveyor upon task completion feedback.
-* Upgraded the robot control architecture from standard fire-and-forget publishers to ROS 2 Action Servers/Clients (FollowJointTrajectory), ensuring precise state management, goal tracking, and reliable feedback loops.
-
-
-https://github.com/user-attachments/assets/c0790b28-72e2-406d-a1df-ed05aed92f1b
-
-
-VERSION 3.0 : The Architect Update
-
-* Runtime Factory World Builder: The ability to construct autonomous factory layouts at runtime via the UI, featuring Factorio/Satisfactory-style 3D grid-snapping and 3-axis (WASD) rotation mechanics.
-* Dynamic ROS2 Namespace Injection: An autonomous UI system that assigns custom, unique ROS2 node names and topic addresses (/namespace/joint_states) to every industrial machine added to the scene. 
-* Native DDS Scene Exporter: Broadcasting the simulation world coordinates (X, Y, Z, and Quaternion) to the ROS2 DDS Network
-
-
-
-https://github.com/user-attachments/assets/68568049-fd2d-4a3d-be35-f9575304b2a4
-
-UI/UX development is actively ongoing. Expect continuous visual refinements and ergonomic improvements to the interface in the upcoming phases
+*Developed by a passionate Robotics Software Developer striving to push the boundaries of Industrial Automation and Digital Twins.*
