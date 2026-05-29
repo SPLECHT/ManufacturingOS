@@ -6,7 +6,7 @@ Moving beyond standard simulation, ManufacturingOS acts as a central **"Master B
 
 ![logo](https://github.com/user-attachments/assets/b5119506-0d8a-48d8-a028-8f20b3f48ea2)
 
-[![Watch the Demo Video](https://img.shields.io/badge/YouTube-Watch_Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](#) *https://youtu.be/y4o7uS0ALpM*
+[![Watch the Demo Video](https://img.shields.io/badge/YouTube-Watch_Demo_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](#) [*https://youtu.be/y4o7uS0ALpM*](https://youtu.be/IbJNSpG4htg)
 
 ---
 
