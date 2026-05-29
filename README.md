@@ -18,7 +18,7 @@ Say goodbye to intermediate TCP/Rosbridge bottlenecks. ManufacturingOS utilizes 
 ### 2. MOS Kernel Daemon & Multi-Robot Fleet Orchestration
 The system features a custom Python daemon (`mos_kernel_daemon.py`) running in the background (WSL2/Ubuntu). 
 * **Dynamic Booting:** Unity sends a unified JSON payload (`START_FLEET`) containing the namespaces of the active robots in the scene.
-* **Parallel Universes:** The Daemon dynamically spawns isolated MoveIt2 instances, TF trees, and Action Servers for each robot (e.g., `/robot_a`, `/ses`) simultaneously.
+* **Parallel Universes:** The Daemon dynamically spawns isolated MoveIt2 instances, TF trees, and Action Servers for each robot (e.g., `/robot_a`, `/robot_b`) simultaneously.
 
 ### 3. Smart Scene Manager (Real-Time Collision Avoidance)
 A dynamic radar system (`SmartSceneManager.cs`) inside Unity scans the environment at 10Hz. 
