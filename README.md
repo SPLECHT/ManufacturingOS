@@ -65,9 +65,11 @@ that same model to run real production. Today the focus is the robotic welding c
   (point, path and time differences).
 - **Cycle time** is calibrated against the vendor simulators and kept on the safe side: the estimate may be slightly longer than the
   controller, never shorter.
+- **Safety distances (ISO 13855)**: light curtains, doors and fences checked against each robot's hazard zone, with the stopping
+  times from the user → report.
 
 ### Export to the real controller
-- **Post-processors**: FANUC `.LS` (ArcTool, GP2 positioner group), KUKA `.src` / `.dat`, Yaskawa `.JBI`, ABB RAPID `.mod`
+- **Post-processors**: FANUC `.LS` (ArcTool, GP2 positioner group, Touch Sensing, TAST, crater schedules), KUKA `.src` / `.dat`, Yaskawa `.JBI`, ABB RAPID `.mod`
   (RobotWare Arc / ArcWare data, independent-axis reset), URScript `.script`.
 - **Setup notes for the field**: tool and user frame values with their teach points, external axis mapping, weld schedules,
   recipe registers, and warnings for each brand's menu.
@@ -75,6 +77,16 @@ that same model to run real production. Today the focus is the robotic welding c
   part to its measured position.
 - **Reverse post**: read a touched-up program back from the controller (all 5 brands) and verify it in the digital twin.
 - **Simulator cell model**: fixtures and tool exported as STL, placed for the robot simulator.
+
+### Commissioning
+A step-by-step commissioning window for each robot, for the day the cell is installed:
+- **Speed calibration**: the application writes a short test program with timer registers; the user runs it on the controller (or in the
+  vendor simulator), types the register values back, and the cycle-time model is fitted to that controller. No line of the fitted model is
+  faster than the measurement. Input checks catch a skipped register or the wrong kind of value.
+- **Touch-up comparison**: the program read back from the controller is matched line by line with the digital twin; a common shift of
+  many points is recognised as a moved part or frame, and the twin can follow it.
+- **Tool payload** (mass, centre of gravity, inertia) computed from the tool CAD, written in each brand's units.
+- **External axis guide**: positioner and track axes with limits, directions and speeds, and the controller menu steps for each brand.
 
 ### Sales tools
 - **Cost and quote**: cycle time, arc time, wire, gas and energy per part, yearly capacity and ROI, from the user's own price table → PDF.
@@ -92,12 +104,16 @@ that same model to run real production. Today the focus is the robotic welding c
 | FANUC ROBOGUIDE: 1-axis and 2-axis servo positioners (GP2) | All welds on the seam. Cycle time on the 2-axis cell: robot moves **+0.9 %**, total **+5 %** (safe side) |
 | ABB RobotStudio (RobotWare 7, OmniCore, IRB 1600) | Fine points within **0.001° / 0.02 mm**, path within **0.03 mm** of the plan |
 | ABB RobotStudio: IRBP positioner, coordinated circle, weaving, ArcWare data | Runs as planned; cycle time slightly longer than RobotStudio by design |
-| Automated test suite | **55 test programs**: kinematics, planning, weld planning, post-processor read-back (exported points re-checked with FK), reverse post round trips, calibration, factory flow, PLC, OPC UA |
+| FANUC ROBOGUIDE: headstock-tailstock cell (1-axis servo positioner + follower) | Weaving, crater fill, TAST seam tracking, multi-station job queue and recipe selection run. Timing findings fed back into the model |
+| FANUC ROBOGUIDE: speed calibration on R-2000iC/165F (38 test moves) | Library model **+2.8 %**, fitted model **+1.9 %**, no line shorter than measured |
+| FANUC ROBOGUIDE: Touch Sensing, 3 searches, part shifted by (3, −2, 1) mm | Offset found within the simulator's contact resolution (~1 mm); TAST follows the shifted seam |
+| FANUC ROBOGUIDE: Touch Sensing on a part rotated about all three axes | Search direction recorded by the controller is **identical** to the planned one (touch frame from the search directions) |
+| Automated test suite | **65 test programs**: kinematics, planning, weld planning, post-processor read-back (exported points re-checked with FK), reverse post round trips, calibration, factory flow, PLC, OPC UA |
 
 **Not yet validated:**
 - on a physical robot;
 - KUKA / Yaskawa / Universal Robots output in their own simulators;
-- the FANUC weld package instructions (weaving, seam tracking, touch sensing, multi-pass) in ROBOGUIDE: next test.
+- FANUC multi-pass (MP offset) and DCS safety settings in ROBOGUIDE: next tests.
 
 ---
 
@@ -126,9 +142,9 @@ that same model to run real production. Today the focus is the robotic welding c
 
 ## Roadmap
 
-- ROBOGUIDE test of the weld package instructions on a headstock-tailstock cell
+- ROBOGUIDE: multi-pass, coordinated motion with the native COORD instruction, DCS safety zones
 - Rail and multi-robot validation in the vendor simulators; URSim
-- Safety distance calculation (ISO 13855)
+- Commissioning report (PDF)
 - Native Windows build and installer
 - Physical robot pilot with an integrator
 - Controller connection: upload, start and monitor over the network → live digital twin and SCADA view
@@ -137,6 +153,23 @@ that same model to run real production. Today the focus is the robotic welding c
 ---
 
 ## Devlog
+
+### 2026-11-14: Touch sensing validated in ROBOGUIDE
+Weld seams can now be found by touching the part with the wire before welding, using the FANUC Touch Sensing instructions.
+The application writes the searches, the shifted weld lines, the touch frames and schedules, and the mastering steps.
+A test cell with a T-joint (one side touch sensing, the other TAST) was checked in ROBOGUIDE in three steps: aligned part, part rotated
+30°, and part rotated about all three axes. The search directions computed by the application match the controller exactly. The
+measured offsets agree within the simulator's contact resolution.
+
+### 2026-11-13: Commissioning window and speed calibration
+A new window guides the installation of a cell: tool payload, frames, speed calibration, comparison with the program on the
+controller. The speed calibration fits the cycle-time model to the real controller from one short test program. On a FANUC
+R-2000iC/165F in ROBOGUIDE the fitted model is within +1.9 %, and still never faster than the controller.
+
+### 2026-11-12: Weld package on a headstock-tailstock cell, ISO 13855
+The full weld package (weaving, crater, TAST, job queue, recipes) was run in ROBOGUIDE on a 1-axis positioner with a tailstock.
+The test found the FANUC crater schedule rule, the weave dwell type, and the arc end time. All are now in the post-processor and
+the cycle-time model. Safety distances of light curtains and doors are calculated to ISO 13855.
 
 ### 2026-11-11: Headstock-tailstock positioner
 A new positioner type: a driven faceplate on the headstock and an idle tailstock that supports the far end of a long part.
