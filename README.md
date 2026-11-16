@@ -7,7 +7,7 @@ that runs on the real controller (FANUC / KUKA / Yaskawa / ABB / Universal Robot
 the cycle time, the quote and the layout drawing for the customer.
 
 The long-term goal is one application where a user, or an AI, can simulate a whole manufacturing area and then use
-that same model to run real production. Today the focus is the robotic welding cell.
+that same model to run real production. Today the focus is robotic cells: arc welding, spot welding, handling and machine tending.
 
 > Closed source. This page is the public overview and devlog of the project.
 
@@ -34,8 +34,11 @@ that same model to run real production. Today the focus is the robotic welding c
 - **Robot carriers**: linear track, column, gantry, column-and-boom. Several robots can share one carrier.
 - **Positioners**: turntable, tilt-rotate, two-station (H-type), headstock-tailstock, or an imported real model.
   Workpieces mount on the table and move with it.
+- **Tools**: arc welding torches, grippers (vacuum, parallel, magnet, vendor models, imported STEP) with **several TCPs on one gripper**
+  that grip independently, and **spot welding guns** (parametric C and X guns, or the maker's STEP with its moving arm picked in the wizard).
 - Factory elements: parametric conveyors, diverters, stoppers, sensors, operator buttons, safety fences with doors and light curtains,
-  torch service stations, weld power sources.
+  torch service stations, weld power sources, process stations (CNC / press / test bench as a black box with a cycle time), part trays
+  refilled by an operator, line stations that hold a car body while robots work on it.
 
 ### Welding (offline programming)
 - **STEP workpiece import** with body roles (part / fixture / excluded). Fillet seams are found automatically from the geometry:
@@ -54,6 +57,19 @@ that same model to run real production. Today the focus is the robotic welding c
   only in size can share one parametric job with register offsets.
 - **Cell cycle**: operator ready / busy handshake per station, alternating two-station cycles, a job queue for multiple stations.
 
+### Handling and machine tending
+- **Pick and place / palletizing**: from a conveyor stopper or a picked point to a pallet pattern, with approach and grip checks.
+- **Machine tending with a dual gripper**: take the raw part, unload the finished part from the machine, load the raw one, put the finished
+  part on the output tray, with the machine's start / done signals wired. A single-TCP variant is generated too.
+- **Held parts are obstacles**: while the gripper holds a part, the part itself is checked against the cell during planning.
+
+### Spot welding (body-in-white demo)
+- A parametric car body (88 sheets and profiles, 6 build stages) and a 62 m body line with 5 stations: framing gate with side-panel loaders,
+  roof, respot, doors, hood and decklid, 19 robots, 38 spot welds.
+- Spot points are placed like on a real line: the fixed electrode on the inner face of the sheet stack, the gun throat open to the free edge,
+  approach and retract in the sheet plane. The moving electrode stops on the first sheet it meets during closing.
+- Station handshakes (body ready → robots → done) and the car body at the station is an obstacle for every robot plan.
+
 ### Verification
 - Motion planning with MoveIt 2 (Pilz PTP / LIN / CIRC), running inside the application with no `move_group` process.
 - Collision check of every robot against the cell along a time-synchronised trace; automatic interference zones.
@@ -63,10 +79,14 @@ that same model to run real production. Today the focus is the robotic welding c
 - **Weld assistant**: when a seam cannot be welded, it searches for a robot or part move that fixes it, and draws a floor reach map.
 - **Simulator trace comparison**: load a joint recording from the vendor simulator and compare it line by line with the plan
   (point, path and time differences).
+- **Live collision monitoring** during the simulation, adaptive to how far the robots moved since the last check.
+- **Robot-to-robot interlock zones** without a PLC (master / slave handshake over wired I/O), or through a PLC.
 - **Cycle time** is calibrated against the vendor simulators and kept on the safe side: the estimate may be slightly longer than the
   controller, never shorter.
 - **Safety distances (ISO 13855)**: light curtains, doors and fences checked against each robot's hazard zone, with the stopping
   times from the user → report.
+- **Safety configuration proposals**: FANUC DCS joint / Cartesian limits from the program, and Universal Robots safety planes,
+  tool limits and reduced-mode speed / force values from ISO/TS 15066.
 
 ### Export to the real controller
 - **Post-processors**: FANUC `.LS` (ArcTool, GP2 positioner group, Touch Sensing, TAST, crater schedules), KUKA `.src` / `.dat`, Yaskawa `.JBI`, ABB RAPID `.mod`
@@ -87,6 +107,10 @@ A step-by-step commissioning window for each robot, for the day the cell is inst
   many points is recognised as a moved part or frame, and the twin can follow it.
 - **Tool payload** (mass, centre of gravity, inertia) computed from the tool CAD, written in each brand's units.
 - **External axis guide**: positioner and track axes with limits, directions and speeds, and the controller menu steps for each brand.
+- **External axis measurement**: the robot touches one fixed point with the axes in different positions; direction, scale, tilt and pivot
+  errors of tracks and positioners are found and applied to the twin.
+- **Controller axis limits** entered per robot, so the planner never uses a range the real controller refuses.
+- **Universal Robots live link**: RTDE connection that mirrors the robot's joints and I/O in the twin, and *Send to robot* for the script.
 
 ### Sales tools
 - **Cost and quote**: cycle time, arc time, wire, gas and energy per part, yearly capacity and ROI, from the user's own price table → PDF.
@@ -108,18 +132,26 @@ A step-by-step commissioning window for each robot, for the day the cell is inst
 | FANUC ROBOGUIDE: speed calibration on R-2000iC/165F (38 test moves) | Library model **+2.8 %**, fitted model **+1.9 %**, no line shorter than measured |
 | FANUC ROBOGUIDE: Touch Sensing, 3 searches, part shifted by (3, −2, 1) mm | Offset found within the simulator's contact resolution (~1 mm); TAST follows the shifted seam |
 | FANUC ROBOGUIDE: Touch Sensing on a part rotated about all three axes | Search direction recorded by the controller is **identical** to the planned one (touch frame from the search directions) |
-| Automated test suite | **65 test programs**: kinematics, planning, weld planning, post-processor read-back (exported points re-checked with FK), reverse post round trips, calibration, factory flow, PLC, OPC UA |
+| FANUC ROBOGUIDE: integrated linear rail (M-10iA + 3 m rail) | Joint values within **0.01°**, rail axis correct, four seams on the part |
+| FANUC ROBOGUIDE: two robots on two controllers, interlock zone without a PLC | The generated wired DO / DI handshake runs on both controllers as planned |
+| Universal Robots URSim: cycle time on 13 models (e-Series, CB3, UR15–UR30) | e-Series plan **+0.6…0.8 %**, CB3 **+2.5…2.8 %** longer than URSim (safe side); points within **0.01 mm** |
+| URSim: weld cell (UR5e, MIG torch, weaving) and pick and place (UR5e, Robotiq 2F-85) | Total **+0.1 %**; joint points within **0.001°** |
+| Two URSims: assembly cell (one UR10e holds the tube, the other tacks and welds) | Lines within **±0.05 s**, the four weld arcs on the circle within **0.00 mm**; interlock zone with simultaneous requests, no conflict |
+| URSim: programs written in PolyScope read back | Taught joints, frames, loops and the Script node come back as the original program |
+| Automated test suite | **83 test programs**: kinematics, planning, weld planning, post-processor read-back (exported points re-checked with FK), reverse post round trips, calibration, factory flow, spot welding line, PLC, OPC UA |
+
+FANUC and Universal Robots outputs are now closed on the simulator side; the next changes come from field feedback.
 
 **Not yet validated:**
 - on a physical robot;
-- KUKA / Yaskawa / Universal Robots output in their own simulators;
-- FANUC multi-pass (MP offset) and DCS safety settings in ROBOGUIDE: next tests.
+- KUKA / Yaskawa output in their own simulators;
+- Robotiq URCap mode and real fieldbus PLC on site.
 
 ---
 
 ## Architecture
 
-- **C++17 · Qt 5 · VTK 9** desktop application (~100k lines).
+- **C++17 · Qt 5 · VTK 9** desktop application (~100k lines of C++).
 - **ROS 2 Humble · MoveIt 2** used as libraries: an in-process `RobotModel`, Pilz industrial planner, KDL / TRAC-IK kinematics.
 - **Pure modules with no UI dependency**, each covered by headless tests:
 
@@ -142,8 +174,7 @@ A step-by-step commissioning window for each robot, for the day the cell is inst
 
 ## Roadmap
 
-- ROBOGUIDE: multi-pass, coordinated motion with the native COORD instruction, DCS safety zones
-- Rail and multi-robot validation in the vendor simulators; URSim
+- KUKA and Yaskawa simulator validation
 - Commissioning report (PDF)
 - Native Windows build and installer
 - Physical robot pilot with an integrator
@@ -153,6 +184,25 @@ A step-by-step commissioning window for each robot, for the day the cell is inst
 ---
 
 ## Devlog
+
+### 2026-11-16: Spot welding line, machine tending, faster simulation
+- **Spot welding**: parametric C and X guns, or the gun maker's STEP. A parametric car body and a 62 m body-in-white line with 19 robots
+  and 38 spot welds run end to end with zero collisions in the cell check. The car body waiting at a station, the gantry posts and the
+  part a robot is holding are all obstacles for the planner.
+- **Machine tending**: a dual gripper (two TCPs) unloads and loads a process station in one visit; the program and the signal wiring are
+  generated together.
+- **Simulation speed**: profiling the body line showed that drawing cost depends on the number of scene objects, not triangles, and that
+  every robot step updated every tool in the scene. After the fixes the 19-robot line runs at 0.9–1.0× real time (before: 0.6–0.9×), at 5× the
+  frame rate went from 1–3 to 8–12 fps, and the toolbar shows the achieved speed whenever the computer cannot keep up with the selected one.
+
+### 2026-11-15: Universal Robots validated in URSim
+The UR output was checked in URSim on 13 robot models: a timing model fitted to the UR controller (cycle times now slightly longer than
+URSim, never shorter), weld and pick-and-place cells, an assembly cell on two URSims connected through their I/O, weaving, PLC register mode,
+safety proposals from ISO/TS 15066, payload charts, a live RTDE link and reading back programs written by hand in PolyScope.
+
+### 2026-11-14: Integrated rail and robot-to-robot interlock in ROBOGUIDE
+A robot on an integrated 3 m rail welds its four seams in ROBOGUIDE with the joint values of the plan. Two robots on two separate
+controllers share an interlock zone with a wired handshake and no PLC. External axes can be measured on site with one fixed point.
 
 ### 2026-11-14: Touch sensing validated in ROBOGUIDE
 Weld seams can now be found by touching the part with the wire before welding, using the FANUC Touch Sensing instructions.
