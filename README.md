@@ -6,10 +6,38 @@ Design a robotic cell, plan the motion, verify it against collisions and the cel
 that runs on the real controller (FANUC / KUKA / Yaskawa / ABB / Universal Robots). The same model also produces
 the cycle time, the quote and the layout drawing for the customer.
 
-The long-term goal is one application where a user, or an AI, can simulate a whole manufacturing area and then use
-that same model to run real production. Today the focus is robotic cells: arc welding, spot welding, handling and machine tending.
+The long-term goal is one application where a user, or an AI, can design and simulate a whole production system, from robot
+cells to the machines around them, and then use that same model to run real production, whatever the hardware brand.
+Today the focus is robotic cells: arc welding, spot welding, handling and machine tending.
 
 > Closed source. This page is the public overview and devlog of the project.
+
+---
+
+## Vision
+
+**One vendor-neutral layer above every machine in the factory.**
+
+A manufacturer should be able to say *"I want to produce this"*, load or design the product and the production system in
+ManufacturingOS, simulate it until the result is right, and then go to the physical installation with everything ready:
+the robot programs, the PLC code, the safety settings, the layout, the bill of materials and the commissioning steps.
+
+- **Any production system, not only robot arms.** Robot cells today; next, the machines around them: coil winders, press
+  brakes, lathes, 3D printers, conveyor lines. Each one is a mechanism with actuators (servo, VFD, pneumatic, hydraulic),
+  sensors and its control logic, designed and simulated in the same model.
+- **The hardware brand does not matter.** Robots get their native program through a post-processor (FANUC, KUKA, ABB,
+  Yaskawa, Universal Robots). PLCs will get theirs the same way: one control program in the application, generated as
+  Siemens SCL, CODESYS / TwinCAT (PLCopen XML) and more, then checked in each vendor's virtual controller, just as the robot
+  output is checked in ROBOGUIDE, RobotStudio and URSim.
+- **Pay for what you use.** Features are separate modules. A small weld shop takes single-robot welding and the post for its
+  robot. A car plant takes multi-robot welding, PLC, conveyors and safety. No stack of separate tools and licences.
+- **Built to be driven by an AI, too.** The whole model (layout, programs, signals, PLC code) is structured data with
+  headless verification, so an agent can design, simulate and check a production system the way an engineer does.
+- **From design to operation.** The same model stays connected to the running plant over OPC UA and the controller links:
+  live digital twin, SCADA view, and later predictive maintenance.
+
+The first step on the machine side is a PLC code generator and a demo factory that builds a robot: a coil winding machine and
+a press brake, each tended by a robot arm, conveyors merging into one line, and cobots assembling on a table.
 
 ---
 
@@ -174,6 +202,9 @@ FANUC and Universal Robots outputs are now closed on the simulator side; the nex
 
 ## Roadmap
 
+- **PLC code generation**: one control program → Siemens SCL, CODESYS / TwinCAT (PLCopen XML), checked in the vendors' virtual PLCs
+- **Machine layer**: actuators (servo, VFD, pneumatic, hydraulic), sensors and PLCopen motion blocks (gearing, cams) for any machine
+- Demo factory: coil winder and press brake tended by robots, merging conveyors, cobot assembly table
 - KUKA and Yaskawa simulator validation
 - Commissioning report (PDF)
 - Native Windows build and installer
