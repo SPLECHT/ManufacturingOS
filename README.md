@@ -36,8 +36,9 @@ the robot programs, the PLC code, the safety settings, the layout, the bill of m
 - **From design to operation.** The same model stays connected to the running plant over OPC UA and the controller links:
   live digital twin, SCADA view, and later predictive maintenance.
 
-The first step on the machine side is a PLC code generator and a demo factory that builds a robot: a coil winding machine and
-a press brake, each tended by a robot arm, conveyors merging into one line, and cobots assembling on a table.
+The first steps on the machine side are done: a PLC code generator (checked in CODESYS), simulated servo axes with PLCopen
+motion blocks, and the first cell of a demo factory, a coil winding machine tended by a robot. Next come a press brake, conveyors
+merging into one line, and cobots assembling on a table.
 
 ---
 
@@ -97,6 +98,36 @@ a press brake, each tended by a robot arm, conveyors merging into one line, and 
 - Spot points are placed like on a real line: the fixed electrode on the inner face of the sheet stack, the gun throat open to the free edge,
   approach and retract in the sheet plane. The moving electrode stops on the first sheet it meets during closing.
 - Station handshakes (body ready → robots → done) and the car body at the station is an obstacle for every robot plan.
+
+### Staged products and production lines (first version)
+- **Staged products**: a product is imported from a STEP assembly or from separate part files, and split into build stages. A stage is
+  reached when its operations are done in the simulation: parts placed, spot welds, arc seams, timed processes.
+- **Mates**: face-to-face, coaxial, coaxial with a stop face. The part is placed where the mate puts it, even if the target moves.
+- **Spot welding module**: spot points suggested from the sheet contact areas, planned with the same solver as the body line.
+- **Station job editor**: one dialog assigns the loaders and spot-weld robots of a line station and writes their programs, wiring and
+  handshakes together.
+- **Stop points on a conveyor**: a stopper or line station where robots work on the part that stands there (weld, place parts on it).
+  The part can change its model when it leaves, and the objects placed on it ride along.
+
+> The large-line workflow (stations, stop points, product stages on a long line like the body-shop demo) works in automated tests, but it is
+> not yet easy to use from the interface. It will be reworked after hands-on trials.
+
+### Machines and PLC code
+- **PLC post-processor**: the user's Structured Text program is generated as Siemens SCL (TIA Portal) or CODESYS / TwinCAT
+  (PLCopen XML + ST), with the I/O mapped to addresses, setup notes and an I/O list.
+- **Motion layer**: simulated servo axes with PLCopen states and trapezoidal profiles, software limits and electronic gearing,
+  driven by MC_Power, MC_Home, MC_MoveAbsolute, MC_MoveVelocity, MC_GearIn, MC_Halt and other blocks in the PLC program. Exported
+  for CODESYS SoftMotion, TwinCAT (Tc2_MC2) and S7-1500 technology objects.
+- **Coil winding cell**: a parametric coil winder (spindle, wire guide, tailstock) with its cell PLC. The robot loads an empty bobbin,
+  the machine winds it layer by layer, and the robot puts the full coil on a conveyor.
+
+### AI assistant
+- Talk to the application by voice or text: *"put a FANUC robot in front of the table"*, *"find the seams and generate the weld path"*,
+  *"run the simulation for 60 seconds"*.
+- An agent with tools for the scene, the weld, handling and assembly processes, signals and PLC, layout and reports.
+- Runs with a local model (Ollama) or a cloud provider chosen by the user. Speech recognition is embedded and runs on the computer.
+- The user has the last word: risky changes are always confirmed in the application, not by the model. The assistant cannot send
+  anything to a real robot.
 
 ### Verification
 - Motion planning with MoveIt 2 (Pilz PTP / LIN / CIRC), running inside the application with no `move_group` process.
@@ -166,20 +197,24 @@ A step-by-step commissioning window for each robot, for the day the cell is inst
 | URSim: weld cell (UR5e, MIG torch, weaving) and pick and place (UR5e, Robotiq 2F-85) | Total **+0.1 %**; joint points within **0.001°** |
 | Two URSims: assembly cell (one UR10e holds the tube, the other tacks and welds) | Lines within **±0.05 s**, the four weld arcs on the circle within **0.00 mm**; interlock zone with simultaneous requests, no conflict |
 | URSim: programs written in PolyScope read back | Taught joints, frames, loops and the Script node come back as the original program |
-| Automated test suite | **83 test programs**: kinematics, planning, weld planning, post-processor read-back (exported points re-checked with FK), reverse post round trips, calibration, factory flow, spot welding line, PLC, OPC UA |
+| CODESYS V3.5 SP22 (Control Win, simulation): generated PLC programs | Compile with **0 errors**; watch values **identical** to the built-in interpreter over 1052 scans |
+| CODESYS SoftMotion: coil winding cycle (spindle + geared wire guide) | Runs as in the twin: 720° spindle, wire guide within ±2 mm, 3 layers |
+| Automated test suite | **101 test programs**, run in parallel: kinematics, planning, weld planning, post-processor read-back (exported points re-checked with FK), reverse post round trips, calibration, factory flow, spot welding line, staged products, PLC, motion, OPC UA, AI assistant tools |
 
 FANUC and Universal Robots outputs are now closed on the simulator side; the next changes come from field feedback.
 
 **Not yet validated:**
 - on a physical robot;
 - KUKA / Yaskawa output in their own simulators;
+- the latest ABB additions (job queue flags, recipes, track, touch search) in RobotStudio;
+- PLC output in TIA Portal and TwinCAT;
 - Robotiq URCap mode and real fieldbus PLC on site.
 
 ---
 
 ## Architecture
 
-- **C++17 · Qt 5 · VTK 9** desktop application (~100k lines of C++).
+- **C++17 · Qt 5 · VTK 9** desktop application (~150k lines of C++).
 - **ROS 2 Humble · MoveIt 2** used as libraries: an in-process `RobotModel`, Pilz industrial planner, KDL / TRAC-IK kinematics.
 - **Pure modules with no UI dependency**, each covered by headless tests:
 
@@ -190,10 +225,13 @@ FANUC and Universal Robots outputs are now closed on the simulator side; the nex
   | `planning/` | cell model, collision trace, program assistant |
   | `recipe/` | product recipes and parametric jobs |
   | `factory/` | flow simulation and cell equipment |
-  | `plc/` | Structured Text interpreter |
+  | `product/` · `spot/` · `cell/` | staged products, spot welding, multi-robot station jobs |
+  | `plc/` | Structured Text interpreter and PLC code generation |
+  | `motion/` | simulated servo axes (PLCopen) |
+  | `ai/` | assistant: LLM protocols, tools, speech |
   | `verify/` | simulator trace comparison |
   | `cost/` · `bom/` · `drawing/` | quote, bill of materials, layout drawing |
-- **OpenCASCADE** for STEP, **open62541** for OPC UA, **Assimp** for meshes.
+- **OpenCASCADE** for STEP, **open62541** for OPC UA, **Assimp** for meshes, **whisper.cpp** for speech recognition.
 - Z-up (REP-103) everywhere. Tools, carriers and positioners are added to an in-memory URDF, and the vendor files are never modified.
 - Project files are versioned, with migration, atomic save, autosave and crash recovery.
 - Work modes: Engineering (full editing), Operation (run and monitor), SCADA (view only).
@@ -202,9 +240,10 @@ FANUC and Universal Robots outputs are now closed on the simulator side; the nex
 
 ## Roadmap
 
-- **PLC code generation**: one control program → Siemens SCL, CODESYS / TwinCAT (PLCopen XML), checked in the vendors' virtual PLCs
-- **Machine layer**: actuators (servo, VFD, pneumatic, hydraulic), sensors and PLCopen motion blocks (gearing, cams) for any machine
-- Demo factory: coil winder and press brake tended by robots, merging conveyors, cobot assembly table
+- Rework of the large-line workflow (stations, stop points, product stages) after hands-on trials
+- PLC output checked in TIA Portal and TwinCAT
+- **Machine layer**: VFD, pneumatic and hydraulic actuators, sensors and cams for any machine (servo axes and gearing are done)
+- Demo factory: press brake tended by a robot, merging conveyors, cobot assembly table (coil winder is done)
 - KUKA and Yaskawa simulator validation
 - Commissioning report (PDF)
 - Native Windows build and installer
@@ -215,6 +254,28 @@ FANUC and Universal Robots outputs are now closed on the simulator side; the nex
 ---
 
 ## Devlog
+
+### 2026-11-21: Staged products and work on a moving line
+- **Staged products**: a product is built in stages, and a stage is reached only when its operations are really done in the
+  simulation: parts placed by a gripper, spot welds closed on the sheet, seams welded. Parts are joined with mates.
+- **Spot welding module** and a **station job editor** that writes the programs, wiring and handshakes of all robots at a line station.
+- **Stop points**: robots weld on, or place parts onto, the part that stops on a conveyor. The part can change state when it leaves, and
+  what was placed on it rides along. This is a first version: the large-line workflow will be reworked after hands-on trials.
+- **Tests**: the suite now runs in parallel, 17.5 → 8.4 minutes. One calibration test went from 194 s to 7.5 s with a faster IK step.
+
+### 2026-11-18: AI assistant, motion layer, coil winding cell
+- **AI assistant**: voice or text, Turkish by default, a local or cloud model. It works through the application's own tools; every risky
+  change is confirmed by the user, and it cannot send programs to a real robot.
+- **Motion layer**: simulated servo axes with PLCopen motion blocks in the PLC program, exported for CODESYS, TwinCAT and Siemens.
+  A CODESYS SoftMotion test drove the rules: the motion block must be called on every scan while the axis moves, and an out-of-range
+  target is not refused but stops the axis on its error ramp. The twin now behaves the same way.
+- **Coil winding cell**, the first cell of the demo factory: the robot loads the bobbin, the cell PLC winds it, the robot unloads it to a conveyor.
+- **ABB at the FANUC level**: job queue, recipes, track, touch search and seam tracking patterns in RAPID (not yet run in RobotStudio).
+
+### 2026-11-17: PLC code generation, checked in CODESYS
+The user's Structured Text program is now exported as Siemens SCL and as CODESYS / TwinCAT PLCopen XML. Two test programs compile
+with 0 errors in CODESYS V3.5 and give the same watch values as our interpreter scan by scan. The CODESYS test found rules such as
+reserved input names, missing ROUND / CEIL / FLOOR functions and narrowing conversions, all handled by the generator now.
 
 ### 2026-11-16: Spot welding line, machine tending, faster simulation
 - **Spot welding**: parametric C and X guns, or the gun maker's STEP. A parametric car body and a 62 m body-in-white line with 19 robots
