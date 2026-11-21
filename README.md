@@ -197,16 +197,22 @@ A step-by-step commissioning window for each robot, for the day the cell is inst
 | URSim: weld cell (UR5e, MIG torch, weaving) and pick and place (UR5e, Robotiq 2F-85) | Total **+0.1 %**; joint points within **0.001°** |
 | Two URSims: assembly cell (one UR10e holds the tube, the other tacks and welds) | Lines within **±0.05 s**, the four weld arcs on the circle within **0.00 mm**; interlock zone with simultaneous requests, no conflict |
 | URSim: programs written in PolyScope read back | Taught joints, frames, loops and the Script node come back as the original program |
+| ABB RobotStudio: two-station job queue, torch service every 3rd cycle, product recipes (300 / 400 / 500 mm from one parametric job) | Runs as planned; a station whose "ready" signal stays on is not welded twice |
+| ABB RobotStudio: touch search (SearchL), part shifted by (2, −1.5, 1) mm | Offset found within **0.43 mm**; the weld follows the shifted seam |
+| ABB RobotStudio: two robots on two controllers, interlock zone without a PLC | No collision, no deadlock; cycle time **222.7 s** planned vs **221.8 s** in RobotStudio |
+| ABB RobotStudio: robot on an IRBT track | Track axis correct; the controller's world frame rule found (carriage zero) |
+| ABB RobotStudio: program written by hand, read back | Joint values identical within **0.01°** |
+| ABB RobotStudio: speed calibration, 36 test moves | Timing model rebuilt from the recording: total **+5.3 %** (was +12.5 %), no line shorter than measured |
 | CODESYS V3.5 SP22 (Control Win, simulation): generated PLC programs | Compile with **0 errors**; watch values **identical** to the built-in interpreter over 1052 scans |
 | CODESYS SoftMotion: coil winding cycle (spindle + geared wire guide) | Runs as in the twin: 720° spindle, wire guide within ±2 mm, 3 layers |
 | Automated test suite | **101 test programs**, run in parallel: kinematics, planning, weld planning, post-processor read-back (exported points re-checked with FK), reverse post round trips, calibration, factory flow, spot welding line, staged products, PLC, motion, OPC UA, AI assistant tools |
 
-FANUC and Universal Robots outputs are now closed on the simulator side; the next changes come from field feedback.
+FANUC, Universal Robots and ABB outputs are now closed on the simulator side; the next changes come from field feedback.
 
 **Not yet validated:**
 - on a physical robot;
 - KUKA / Yaskawa output in their own simulators;
-- the latest ABB additions (job queue flags, recipes, track, touch search) in RobotStudio;
+- older controller generations (ABB IRC5 with RobotWare Arc, FANUC R-30iA, KUKA KRC2, Yaskawa DX100);
 - PLC output in TIA Portal and TwinCAT;
 - Robotiq URCap mode and real fieldbus PLC on site.
 
@@ -244,6 +250,7 @@ FANUC and Universal Robots outputs are now closed on the simulator side; the nex
 - PLC output checked in TIA Portal and TwinCAT
 - **Machine layer**: VFD, pneumatic and hydraulic actuators, sensors and cams for any machine (servo axes and gearing are done)
 - Demo factory: press brake tended by a robot, merging conveyors, cobot assembly table (coil winder is done)
+- Post-processors for older controller generations (IRC5, R-30iA, KRC2, DX100), learned from open driver code and published examples
 - KUKA and Yaskawa simulator validation
 - Commissioning report (PDF)
 - Native Windows build and installer
@@ -254,6 +261,23 @@ FANUC and Universal Robots outputs are now closed on the simulator side; the nex
 ---
 
 ## Devlog
+
+### 2026-11-22: ABB validated in RobotStudio
+Seven tests in RobotStudio closed the ABB output at the same level as FANUC and Universal Robots: job queue with torch service, recipes,
+an integrated track, two robots sharing an interlock zone over wired I/O, touch search, a speed calibration run and reading back a program
+written by hand. The tests found six problems. Five are fixed:
+- RAPID gives `NOT` the lowest priority, so `… AND NOT flag` is a syntax error;
+- modules that are loaded together cannot share global data names;
+- the speed calibration path could cross the shoulder singularity;
+- the planner gave every axis the speed of the slowest one, so the wrist moved at less than half its real speed;
+- linear moves were planned with too low an acceleration.
+
+The sixth goes into the post-processor next: on a track system the controller's world frame sits at the carriage zero position,
+not at the start of the rail.
+
+The ABB timing model is now built from the RobotStudio recording: one acceleration per axis, the TCP and orientation speed limits
+of the speed data, and a settling time at fine points. The cycle time stays on the safe side, 5 % longer than RobotStudio, and no
+move is shorter than measured.
 
 ### 2026-11-21: Staged products and work on a moving line
 - **Staged products**: a product is built in stages, and a stage is reached only when its operations are really done in the
